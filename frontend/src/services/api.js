@@ -219,3 +219,30 @@ export async function getIssues() {
 export async function getIssue(issueId) {
   return issues.find((issue) => issue.id === issueId) || null;
 }
+
+export async function createFiles({ path, names }) {
+  const response = await fetch("http://localhost:8000/file-creator/requests", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path, names }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.detail || "The backend rejected the file creation request.");
+  }
+
+  return data;
+}
+
+export async function getWorkspacePath() {
+  const response = await fetch("http://localhost:8000/file-creator/workspace");
+
+  if (!response.ok) {
+    throw new Error("Could not get the workspace path from the extension.");
+  }
+
+  const data = await response.json();
+  return data.path || "";
+}

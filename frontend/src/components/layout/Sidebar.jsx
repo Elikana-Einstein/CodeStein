@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   HelpCircle,
   X,
+  FilePlus,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -30,6 +31,11 @@ const mainNavigation = [
     label: "Issues",
     to: "/app/issues",
     icon: CircleAlert,
+  },
+  {
+    label: "Create file",
+    to: "/app/create-file",
+    icon: FilePlus,
   },
 ];
 

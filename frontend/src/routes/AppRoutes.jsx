@@ -10,6 +10,7 @@ import ReviewDetails from "../pages/ReviewDetails";
 import Issues from "../pages/Issues";
 import Settings from "../pages/Settings";
 import NotFound from "../pages/NotFound";
+import CreateFile from "../pages/CreateFile";
 
 export default function AppRoutes() {
   return (
@@ -24,6 +25,7 @@ export default function AppRoutes() {
         <Route path="reviews/:reviewId" element={<ReviewDetails />} />
         <Route path="issues" element={<Issues />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="create-file" element={<CreateFile />} />
         </Route>
 
       <Route path="*" element={<NotFound />} />

@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import model
 from .database import Base, engine
 from .log import router as log_router
+from .file_creator import router as file_creator_router
 
 
 @asynccontextmanager
@@ -25,4 +26,5 @@ app.add_middleware(
 )
 
 app.include_router(log_router)
+app.include_router(file_creator_router)
 
