@@ -1,45 +1,38 @@
 {
-  "name": "vscode-file-creator",
-  "displayName": "VS Code File Creator",
-  "description": "Creates files and folders in the VS Code workspace from backend requests.",
+  "name": "codestein",
+  "displayName": "CodeStein",
+  "description": "AI code analyzer",
   "version": "0.0.1",
-  "publisher": "your-name",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.85.0"
   },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished",
-    "onCommand:vscode-file-creator.create"
-  ],
   "main": "./out/extension.js",
+
   "contributes": {
     "commands": [
       {
-        "command": "vscode-file-creator.create",
-        "title": "File Creator: Create File or Folder"
+        "command": "codestein.analyze",
+        "title": "CodeStein: Analyze Project"
       }
     ],
-    "configuration": {
-      "fileCreator.backendUrl": {
-        "type": "string",
-        "default": "http://localhost:8000",
-        "description": "URL of the backend server."
-      }
+    "menus": {
+  "explorer/context": [
+    {
+      "command": "codestein.analyze",
+      "group": "navigation"
     }
+  ]
+}
   },
+
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "package": "vsce package",
-    "test": "npm run compile"
+    "compile": "tsc",
+    "watch": "tsc --watch"
   },
+
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@types/vscode": "^1.90.0",
-    "typescript": "^5.0.0",
-    "@vscode/vsce": "^3.0.0"
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.0.0"
   }
 }

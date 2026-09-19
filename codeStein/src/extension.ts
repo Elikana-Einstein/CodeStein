@@ -1,44 +1,37 @@
-//@ts-ignore
 import * as vscode from "vscode";
 
-import { BackendClient } from "./backend/client";
-import { registerCreateCommand } from "./commands/createCommand";
-import {
-    initializeLogger,
-    log
-} from "./utils/logger";
+export function activate(context: vscode.ExtensionContext) {
 
-export function activate(
-    context: vscode.ExtensionContext
-): void {
-    initializeLogger();
+    console.log("CodeStein activated!");
 
-    log("File Creator extension activated.");
+   const analyzeCommand = vscode.commands.registerCommand(
+    "codestein.analyze",
+    async (uri: vscode.Uri) => {
 
-    registerCreateCommand(context);
+        const output =
+            vscode.window.createOutputChannel("CodeStein");
 
-    const backendClient =
-        new BackendClient();
-
-    /*
-     * For the MVP, poll the backend every 2 seconds.
-     *
-     * We can replace this with WebSocket later.
-     */
-    const timer = setInterval(
-        async () => {
-            await backendClient.fetchRequests();
-        },
-        2000
-    );
-
-    context.subscriptions.push({
-        dispose: () => {
-            clearInterval(timer);
+        if (!uri) {
+            output.appendLine("No folder was selected.");
+            output.show();
+            return;
         }
-    });
+
+        const folderPath = uri.fsPath;
+
+        output.appendLine(
+            `Selected folder: ${folderPath}`
+        );
+
+        output.show();
+
+        vscode.window.showInformationMessage(
+            `Analyzing: ${folderPath}`
+        );
+    }
+);
+
+    context.subscriptions.push(analyzeCommand);
 }
 
-export function deactivate(): void {
-    // Cleanup happens through subscriptions.
-}
+export function deactivate() {}
