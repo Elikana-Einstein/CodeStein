@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import model
 from .database import Base, engine
 from .log import router as log_router
 from .file_creator import router as file_creator_router

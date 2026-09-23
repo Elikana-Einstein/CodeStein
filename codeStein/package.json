@@ -13,6 +13,10 @@
       {
         "command": "codestein.analyze",
         "title": "CodeStein: Analyze Project"
+      },
+      {
+        "command": "gitDiffViewer.showDiff",
+        "title": "Git Diff Viewer: Show Diff"
       }
     ],
     "menus": {

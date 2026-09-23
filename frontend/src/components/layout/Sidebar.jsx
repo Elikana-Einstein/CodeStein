@@ -37,6 +37,11 @@ const mainNavigation = [
     to: "/app/create-file",
     icon: FilePlus,
   },
+   {
+    label: "Vscode",
+    to: "/app/vscode",
+    icon: ShieldCheck,
+  },
 ];
 
 const secondaryNavigation = [

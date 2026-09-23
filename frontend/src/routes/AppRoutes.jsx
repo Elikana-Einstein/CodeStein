@@ -11,7 +11,8 @@ import Issues from "../pages/Issues";
 import Settings from "../pages/Settings";
 import NotFound from "../pages/NotFound";
 import CreateFile from "../pages/CreateFile";
-
+import Vscode from "../pages/Vscode";
+import VascodeLayout from "../layouts/VascodeLayout";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         <Route path="issues" element={<Issues />} />
         <Route path="settings" element={<Settings />} />
         <Route path="create-file" element={<CreateFile />} />
+        <Route path="vscode" element={<VascodeLayout />} />
         </Route>
 
       <Route path="*" element={<NotFound />} />

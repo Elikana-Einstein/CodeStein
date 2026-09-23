@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FilePlus2, FolderOpen, X } from "lucide-react";
+import { FilePlus2, FolderOpen, RefreshCw, X } from "lucide-react";
 
 import PageHeader from "../components/layout/PageHeader";
 import Button from "../components/ui/Button";
@@ -15,6 +15,23 @@ export default function CreateFile() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [refreshingPath, setRefreshingPath] = useState(false);
+
+  const loadWorkspacePath = async () => {
+    setRefreshingPath(true);
+
+    try {
+      const workspacePath = await getWorkspacePath();
+
+      if (workspacePath) {
+        setFolderPath(workspacePath);
+      }
+    } catch (requestError) {
+      setError(requestError.message || "Could not refresh the workspace path.");
+    } finally {
+      setRefreshingPath(false);
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -35,7 +52,15 @@ export default function CreateFile() {
   }, []);
 
   const fileNames = useMemo(
-    () => [...new Set(fileInput.split(/[\n,]/).map((name) => name.trim()).filter(Boolean))],
+    () =>
+      [
+        ...new Set(
+          fileInput
+            .split(/[\n,]/)
+            .map((name) => name.trim())
+            .filter(Boolean)
+        ),
+      ],
     [fileInput]
   );
 
@@ -69,10 +94,16 @@ export default function CreateFile() {
     try {
       await createFiles({ path: folderPath.trim(), names: fileNames });
       setSubmittedFiles(fileNames);
-      setSuccess(`${fileNames.length} file${fileNames.length === 1 ? "" : "s"} added to the creation queue.`);
+      setSuccess(
+        `${fileNames.length} file${
+          fileNames.length === 1 ? "" : "s"
+        } added to the creation queue.`
+      );
       setFileInput("");
     } catch (requestError) {
-      setError(requestError.message || "Could not send the file creation request.");
+      setError(
+        requestError.message || "Could not send the file creation request."
+      );
     } finally {
       setLoading(false);
     }
@@ -86,20 +117,46 @@ export default function CreateFile() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+        >
           <div className="mb-6 flex items-center gap-3 rounded-xl bg-indigo-50 p-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
               <FilePlus2 size={19} />
             </div>
+
             <div>
-              <p className="text-sm font-medium text-indigo-900">VS Code file creation</p>
-              <p className="mt-0.5 text-xs text-indigo-700">The connected extension will create each queued file.</p>
+              <p className="text-sm font-medium text-indigo-900">
+                VS Code file creation
+              </p>
+              <p className="mt-0.5 text-xs text-indigo-700">
+                The connected extension will create each queued file.
+              </p>
             </div>
           </div>
 
           <div className="space-y-5">
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Folder path</span>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-700">
+                  Folder path
+                </span>
+
+                <button
+                  type="button"
+                  onClick={loadWorkspacePath}
+                  disabled={refreshingPath}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 transition hover:text-indigo-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <RefreshCw
+                    size={14}
+                    className={refreshingPath ? "animate-spin" : ""}
+                  />
+                  {refreshingPath ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
+
               <input
                 required
                 value={folderPath}
@@ -107,25 +164,46 @@ export default function CreateFile() {
                 placeholder="src/pages"
                 className={`${inputClassName} h-10 font-mono`}
               />
-              <span className="mt-1.5 block text-xs text-slate-500">Loaded from VS Code when available. You can change it before submitting.</span>
+
+              <span className="mt-1.5 block text-xs text-slate-500">
+                Loaded from VS Code when available. You can change it before
+                submitting.
+              </span>
             </label>
 
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">File names</span>
+              <span className="text-sm font-medium text-slate-700">
+                File names
+              </span>
+
               <textarea
                 required
                 value={fileInput}
                 onChange={(event) => setFileInput(event.target.value)}
-                placeholder={"Dashboard.jsx\nSettings.jsx\nProfile.jsx\nHelp.jsx"}
+                placeholder={
+                  "Dashboard.jsx\nSettings.jsx\nProfile.jsx\nHelp.jsx"
+                }
                 rows={8}
                 className={`${inputClassName} resize-y py-3 font-mono`}
               />
-              <span className="mt-1.5 block text-xs text-slate-500">Add one name per line. Commas are also supported.</span>
+
+              <span className="mt-1.5 block text-xs text-slate-500">
+                Add one name per line. Commas are also supported.
+              </span>
             </label>
           </div>
 
-          {error && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
-          {success && <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>}
+          {error && (
+            <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <p className="mt-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              {success}
+            </p>
+          )}
 
           <div className="mt-7 flex justify-end">
             <Button type="submit" icon={FilePlus2} loading={loading}>
@@ -139,16 +217,30 @@ export default function CreateFile() {
             <FolderOpen size={17} className="text-indigo-600" />
             <h2 className="font-semibold">Queue preview</h2>
           </div>
-          <p className="mt-1 text-xs text-slate-500">{folderPath.trim() || "your-folder"}</p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            {folderPath.trim() || "your-folder"}
+          </p>
 
           <div className="mt-4 space-y-2">
             {fileNames.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-sm text-slate-400">Your files will appear here.</p>
+              <p className="rounded-lg border border-dashed border-slate-200 px-3 py-5 text-center text-sm text-slate-400">
+                Your files will appear here.
+              </p>
             ) : (
               fileNames.map((fileName) => (
-                <div key={fileName} className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                <div
+                  key={fileName}
+                  className="flex items-center justify-between gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700"
+                >
                   <span className="truncate font-mono">{fileName}</span>
-                  <button type="button" onClick={() => removeFile(fileName)} aria-label={`Remove ${fileName}`} className="shrink-0 text-slate-400 hover:text-slate-700">
+
+                  <button
+                    type="button"
+                    onClick={() => removeFile(fileName)}
+                    aria-label={`Remove ${fileName}`}
+                    className="shrink-0 text-slate-400 hover:text-slate-700"
+                  >
                     <X size={15} />
                   </button>
                 </div>
@@ -157,7 +249,9 @@ export default function CreateFile() {
           </div>
 
           {submittedFiles.length > 0 && (
-            <p className="mt-4 border-t border-slate-100 pt-4 text-xs text-slate-500">Last queued: {submittedFiles.join(", ")}</p>
+            <p className="mt-4 border-t border-slate-100 pt-4 text-xs text-slate-500">
+              Last queued: {submittedFiles.join(", ")}
+            </p>
           )}
         </aside>
       </div>

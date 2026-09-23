@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run CodeStein Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/codeStein"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/codeStein/out/**/*.js"
+      ],
+      "preLaunchTask": "Compile CodeStein Extension"
+    }
+  ]
+}
