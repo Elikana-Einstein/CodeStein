@@ -1,41 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import useAppStore from "../store/appStore";
 
 const Vscode = () => {
-  const code = `
-import React from "react";
+  const getCodes = useAppStore((state) => state.getCodes);
+  const codeData = useAppStore((state) => state.codes);
 
-function App() {
-  const users = [
-    { id: 1, name: "John" },
-    { id: 2, name: "Jane" },
-    { id: 3, name: "Mike" },
-  ];
+  useEffect(() => {
+    let unsubscribe;
 
-  const handleClick = () => {
-    console.log("Button clicked");
-  };
+    getCodes()
+      .then((cleanup) => {
+        unsubscribe = cleanup;
+      })
+      .catch((error) => {
+        console.error("Failed to subscribe to code updates:", error);
+      });
 
-  return (
-    <div>
-      <h1>Hello World</h1>
-
-      <button onClick={handleClick}>
-        Click me
-      </button>
-
-      {users.map((user) => (
-        <div key={user.id}>
-          {user.name}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export default App;
-`;
+    return () => unsubscribe?.();
+  }, [getCodes]);
 
   return (
     <div className="w-full overflow-auto rounded-lg">
@@ -51,7 +35,7 @@ export default App;
           minHeight: "400px",
         }}
       >
-        {code}
+        {codeData?.code || "Select a file to view its code."}
       </SyntaxHighlighter>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { sendWebSocketMessage } from "../../services/webSoccket";
 
 const FolderTreeItem = ({
   item,
@@ -74,7 +75,8 @@ const FolderStructure = () => {
 
   const onItemClick = (item, itemPath) => {
     const path = itemPath.join("/");
-    console.log(`Selected ${item.type}: ${path}`);
+    //connect to websocket and send the path to the backend
+    sendWebSocketMessage({ type: "code_request", path });
   };
   useEffect(() => {
     const getFolderStructure = async () => {

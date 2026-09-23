@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 
@@ -21,6 +23,10 @@ class WorkspaceRequest(BaseModel):
 class FolderStructureRequest(BaseModel):
     structure: dict = Field(min_length=1)
 
+class CodeRequest(BaseModel):
+    path: str = Field(min_length=1)
+    code: str
+
 
 @router.post("/workspace")
 def publish_workspace(data: WorkspaceRequest):
@@ -28,7 +34,6 @@ def publish_workspace(data: WorkspaceRequest):
 
     workspace_path = data.path.strip()
 
-    print(f"Workspace path: {workspace_path}")
 
     return {"path": workspace_path}
 
@@ -38,14 +43,12 @@ def publish_folder_structure(data: FolderStructureRequest):
 
     folder_structure = data.structure
 
-    print(f"Folder structure: {folder_structure}")
 
     return {"path": workspace_path}
 
 
 @router.get("/workspace")
 def get_workspace():
-    print(f"Workspace path: {workspace_path}")
 
     return {"path": workspace_path}
 
@@ -68,6 +71,66 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except Exception:
         manager.disconnect(websocket)
+
+@router.websocket("/ws/frontend")
+async def frontend_websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket, frontend=True)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            if message.get("type") == "code_request":
+                await manager.broadcast_extension(message)
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+    except Exception:
+        manager.disconnect(websocket)
+
+@router.websocket("/ws/requests")
+async def websocket_requests_endpoint(websocket: WebSocket):
+    await manager.connect(websocket, frontend=True)
+
+    try:
+        while True:
+            await websocket.receive_text()
+
+            return;
+
+            new_requests = [
+                {
+                    'action': 'get_code',
+                    'type': 'code',
+                    'path': workspace_path,
+                }
+            ]
+            await manager.broadcast_extension({
+                "type": "code_request",
+                "requests": new_requests,
+            })
+
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+    except Exception:
+        manager.disconnect(websocket)
+
+#gets code from extension and sends it to frontend via websocket
+@router.post("/get_code")
+async def return_code_request(data: CodeRequest):
+    await manager.broadcast_frontend({
+        "type": "code",
+        "path": data.path.strip(),
+        "code": data.code,
+    })
+    print(data.code,'hy')
+    return {
+        "sent": True,
+        "path": data.path.strip(),
+    }
 
 
 @router.post("/requests")

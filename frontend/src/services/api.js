@@ -246,3 +246,36 @@ export async function getWorkspacePath() {
   const data = await response.json();
   return data.path || "";
 }
+export  const code = `
+import React from "react";
+
+function App() {
+  const users = [
+    { id: 1, name: "John" },
+    { id: 2, name: "Jane" },
+    { id: 3, name: "Mike" },
+  ];
+
+  const handleClick = () => {
+    console.log("Button clicked");
+  };
+
+  return (
+    <div>
+      <h1>Hello World</h1>
+
+      <button onClick={handleClick}>
+        Click me
+      </button>
+
+      {users.map((user) => (
+        <div key={user.id}>
+          {user.name}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default App;
+`;
